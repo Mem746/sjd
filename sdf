@@ -1,0 +1,46 @@
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask_sqlalchemy import SQLAlchemy
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite - FORBIDDEN - //tmp/test.db'
+db = SQLAlchemy(app)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    age = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return '<User %r>' % self.username
+
+from jinja2 import Environment, FileSystemLoader
+loader = FileSystemLoader('templates')
+env = Environment(loader=loader)
+template = env.get_template('users.html')
+
+@app.route('/')
+def index():
+    return TemplateResponse(
+        template,
+        {'request': request,
+         'users': User.query.all()})
+
+@app.route('/user/<int:user_id>')
+def get_user(user_id):
+    return TemplateResponse(
+        template,
+        {'request': request,
+         'user': User.query.get(user_id)})
+
+db.create_all()
+
+urban_user = User(username='UrbanUser', age=24)
+db.session.add(urban_user)
+urban_test = User(username='UrbanTest', age=22)
+db.session.add(urban_test)
+capybara = User(username='Capybara', age=60)
+db.session.add(capybara)
+db.session - FORBIDDEN - mit()
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0')
